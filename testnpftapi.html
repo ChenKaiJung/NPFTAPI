@@ -1,0 +1,90 @@
+﻿<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/tr/html4/strict.dtd'>
+<HTML lang="zh-tw">
+<HEAD>
+<TITLE>New Page</TITLE>
+</HEAD>
+<BODY>
+<embed type="application/npftapi" HEIGHT="0" WIDTH="0" id="plugin" pluginspage="https://addons.mozilla.org/firefox/downloads/file/125197/npftapi-1.0.0.1-fx-windows.xpi" autoplay="no" wmode="transparent" />
+
+<SCRIPT language="JavaScript" type="text/JavaScript">
+
+var PLUGIN = null;
+
+function OnNPFTAPIOk(){
+    alert("OK");
+}
+
+function OnNPFTAPIError(){
+  
+  if(PLUGIN == null) PLUGIN = document.getElementById("plugin");
+  
+  alert(PLUGIN.ErrorCode);
+}
+
+function InitNPFTAPI()
+{
+ try
+ {
+  if( CheckBrowser() ) return;
+  if(PLUGIN == null)  PLUGIN = document.getElementById("plugin");
+  PLUGIN.AddOkEvent("OnNPFTAPIOk");
+  PLUGIN.AddErrorEvent("OnNPFTAPIError");  
+  PLUGIN.Launch("ChenKaiJung","anealj4dj2iuct7tbac3ockxccqqvkqrjf25yuaf4h7aryonpmxu2qqor6ikoaimpenrvqn5qwp3vor2seabrswfzr34sipuvvxkuvhalappls6x7jiwet3hqsswd2t6no577w2s6six3ruli4vnurk64q======");
+ }
+ catch(e)
+ {
+  //alert(e.name + "\n" + e.message);
+  if(e.name == "TypeError")
+  {
+   alert("Please Install AVA Firefox Plugin");
+  }
+  //if(e.message == "Error calling method on NPObject!")
+  //{
+   //alert("calling method");
+  //}
+ }
+}
+
+function GetVersion()
+{
+	try
+	{	
+		if(PLUGIN == null) PLUGIN = document.getElementById('plugin');
+		alert( "Version from plugin: " + PLUGIN.Name );
+	}
+	catch (err) { alert(err); }
+}
+
+function CheckBrowser()
+{
+	var s = navigator.userAgent;//alert(s);
+	var a = s.indexOf("Apple");
+	var c = s.indexOf("Chrome");
+	var ie = s.indexOf("MSIE");
+	
+	if( c > 0 )//is there chrome
+	{
+		alert( "Chrome dont like functions with parameters.");
+		return true;
+	}	
+	
+	if( ie > 0 )//is there chrome
+	{
+		alert( "Internet Explorer dont like NPAPI at all.");
+		return true;
+	}
+	
+	if( a > 0 )//is there chrome
+	{
+		alert( "Apple Safari dont like NPAPI at all.");
+		return true;
+	}
+
+	return false;
+}
+
+
+InitNPFTAPI();
+</SCRIPT>
+</BODY>
+</HTML>
