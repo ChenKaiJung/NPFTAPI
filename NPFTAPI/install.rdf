@@ -4,7 +4,7 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:name>NPFTAPI</em:name>
-    <em:id>{69831550-1ccc-11e1-8bc2-0800200c9a66}</em:id> 
+    <em:id>{fb303725-62b6-4cf9-a04f-15c3b3e08e5b}</em:id> 
 	<em:unpack>true</em:unpack>
     <em:version>1.0.0.2</em:version>
 	<em:type>2</em:type>

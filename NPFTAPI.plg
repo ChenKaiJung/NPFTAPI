@@ -3,10 +3,28 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
+--------------------Configuration: Greta - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\tank\LOCALS~1\Temp\RSP9E.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fp"Release/Greta.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\MyProject\git\AVA\trunk\NPFTAPI\Greta\regexpr2.cpp"
+"C:\MyProject\git\AVA\trunk\NPFTAPI\Greta\syntax2.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\tank\LOCALS~1\Temp\RSP9E.tmp" 
+Creating command line "link.exe -lib /nologo /out:"Release\Greta.lib"  .\Release\regexpr2.obj .\Release\syntax2.obj "
+<h3>Output Window</h3>
+Compiling...
+regexpr2.cpp
+syntax2.cpp
+Creating library...
+<h3>
 --------------------Configuration: NPFTAPI - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\tank\LOCALS~1\Temp\RSP6C.tmp" with contents
+Creating command line "rc.exe /l 0x404 /fo"Release/nprt.res" /d "NDEBUG" "C:\MyProject\git\AVA\trunk\NPFTAPI\nprt.rc"" 
+Creating temporary file "C:\DOCUME~1\tank\LOCALS~1\Temp\RSP9F.tmp" with contents
 [
 /nologo /MD /W3 /GX /O2 /I "C:\MyProject\xulrunner-sdk\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "NPFTAPI_EXPORTS" /D "XP_WIN32" /D "MOZILLA_STRICT_API" /D "XPCOM_GLUE" /D "XP_WIN" /D "_X86_" /D "NPSIMPLE_EXPORTS" /Fp"Release/NPFTAPI.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
 "C:\MyProject\git\AVA\trunk\NPFTAPI\np_entry.cpp"
@@ -15,8 +33,8 @@ Creating temporary file "C:\DOCUME~1\tank\LOCALS~1\Temp\RSP6C.tmp" with contents
 "C:\MyProject\git\AVA\trunk\NPFTAPI\npstring.cpp"
 "C:\MyProject\git\AVA\trunk\NPFTAPI\plugin.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\tank\LOCALS~1\Temp\RSP6C.tmp" 
-Creating temporary file "C:\DOCUME~1\tank\LOCALS~1\Temp\RSP6D.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\tank\LOCALS~1\Temp\RSP9F.tmp" 
+Creating temporary file "C:\DOCUME~1\tank\LOCALS~1\Temp\RSPA0.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Greta\Release\Greta.lib wintrust.lib /nologo /dll /incremental:no /pdb:"Release/NPFTAPI.pdb" /machine:I386 /def:".\nprt.def" /out:"Release/NPFTAPI.dll" /implib:"Release/NPFTAPI.lib" 
 .\Release\np_entry.obj
@@ -27,8 +45,9 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 .\Release\nprt.res
 .\Greta\Release\Greta.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\tank\LOCALS~1\Temp\RSP6D.tmp"
+Creating command line "link.exe @C:\DOCUME~1\tank\LOCALS~1\Temp\RSPA0.tmp"
 <h3>Output Window</h3>
+Compiling resources...
 Compiling...
 np_entry.cpp
 npn_gate.cpp
