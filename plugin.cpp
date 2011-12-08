@@ -99,10 +99,14 @@ bool VerifyEmbeddedSignature(char *file)
 	typedef LONG (WINAPI *pWinVerifyTrust)(HWND hWnd,GUID* ActionID,LPVOID ActionData); 
 	pWinVerifyTrust iWinVerifyTrust=NULL;
 	
-    char dllpath[MAX_PATH]={0};
+    char *dllpath=(char *)NPN_MemAlloc(MAX_PATH);
+	SecureZeroMemory(dllpath, MAX_PATH);
+
     GetSystemDirectory(dllpath,MAX_PATH);
     sprintf(dllpath,"%s\\%s",dllpath,"WINTRUST.DLL");
     HINSTANCE hWintrust = LoadLibrary(dllpath);	
+
+	if(dllpath) NPN_MemFree(dllpath);
 	  
 	if(hWintrust==NULL) return TRUE;
 	iWinVerifyTrust = (pWinVerifyTrust)GetProcAddress(hWintrust, "WinVerifyTrust");	
@@ -539,10 +543,10 @@ public:
 		//::GetUserName( m_pszName, &dw );
 	  m_OnOk = NULL;
 	  m_OnError = NULL;
-	  m_LauncherExec = new char[MAX_PATH];
-	  m_LauncherPath = new char[MAX_PATH];
-	  m_GameExec = new char[MAX_PATH];
-	  m_GamePath = new char[MAX_PATH];
+	  m_LauncherExec = (char*)NPN_MemAlloc(MAX_PATH);
+	  m_LauncherPath = (char*)NPN_MemAlloc(MAX_PATH);
+	  m_GameExec = (char*)NPN_MemAlloc(MAX_PATH);
+	  m_GamePath = (char*)NPN_MemAlloc(MAX_PATH);
   }
 
   ~ScriptablePluginObject();
@@ -579,12 +583,13 @@ AllocateScriptablePluginObject(NPP npp, NPClass *aClass)
 
 ScriptablePluginObject::~ScriptablePluginObject()
 {
-	  if(m_OnOk != NULL) delete m_OnOk;
-	  if(m_OnError != NULL) delete m_OnError;
-	  if(m_LauncherExec != NULL) delete m_LauncherExec;
-	  if(m_LauncherPath != NULL) delete m_LauncherPath;
-	  if(m_GameExec != NULL) delete m_GameExec;
-	  if(m_GamePath != NULL)  delete m_GamePath;
+
+	if(m_OnOk != NULL) NPN_MemFree(m_OnOk);
+	  if(m_OnError != NULL) NPN_MemFree(m_OnError);
+	  if(m_LauncherExec != NULL) NPN_MemFree(m_LauncherExec);
+	  if(m_LauncherPath != NULL)  NPN_MemFree(m_LauncherPath);
+	  if(m_GameExec != NULL)  NPN_MemFree(m_GameExec);
+	  if(m_GamePath != NULL)   NPN_MemFree(m_GamePath);
 
 }
 
@@ -772,30 +777,39 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
 			return false;
 		}
-		fromatch = (char *)ServiceAccount;
+		fromatch.clear();
+		char *tmp=(char*)NPN_MemAlloc(512);
+		strncpy(tmp,ServiceAccount,args[0].value.stringValue.UTF8Length);
+		fromatch += tmp; 
 		br = pat_i.match( fromatch, results );
 		if( ! br.matched ) 
 		{
 			m_ErrorCode=101;
 			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			if (tmp) NPN_MemFree(tmp);
 			return false;
 		}
-
-		fromatch = (char *)Cipher;		
-		
+		fromatch.clear();
+		strncpy(tmp,Cipher,args[1].value.stringValue.UTF8Length);	
+		fromatch += tmp;		
 		br = pat_i.match( fromatch, results );
 		if( ! br.matched ) 
 		{
 			m_ErrorCode=114;
 			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			if (tmp) NPN_MemFree(tmp);
 			return false;
 		}
+		if (tmp) NPN_MemFree(tmp);
 
-		char path[MAX_PATH];
+		char *path=(char*)NPN_MemAlloc(MAX_PATH);
+
 		SetCurrentDirectory((LPCTSTR)m_LauncherPath);
 		sprintf(path,"%s -ServiceAccount=%s -Cipher=%s",m_LauncherExec,ServiceAccount,Cipher);
 		WinExec( path, SW_SHOW);
-	
+
+		if (path) NPN_MemFree(path);
+
 		m_ErrorCode = 100;
 		INT32_TO_NPVARIANT( m_ErrorCode,*result);
 		
@@ -812,8 +826,8 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			return false;
 		}
 		int length= args[0].value.stringValue.UTF8Length;
-		m_OnOk = new char[ length + 1 + 30];//allocating Memory for the string with local memory
-		memset( m_OnOk, 0, length + 1 + 30);
+		m_OnOk = (char*)NPN_MemAlloc(length + 1 + 30);//allocating Memory for the string with local memory
+        SecureZeroMemory(m_OnOk, length + 1 + 30);
 		//strncpy( m_OnOk, args[0].value.stringValue.UTF8Characters, args[0].value.stringValue.UTF8Length );//copy data
 		sprintf(m_OnOk,"javascript:%s()",args[0].value.stringValue.UTF8Characters);
 		return true;
@@ -828,8 +842,9 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			return false;
 		}
 		int length= args[0].value.stringValue.UTF8Length;
-		m_OnError = new char[ length + 1 + 30];//allocating Memory for the string with local memory
-		memset( m_OnError, 0, length + 1 + 30);
+		m_OnError =  (char*)NPN_MemAlloc(length + 1 + 30);
+        SecureZeroMemory(m_OnError, length + 1 + 30);
+
 		//strncpy( m_OnError, args[0].value.stringValue.UTF8Characters, args[0].value.stringValue.UTF8Length );//copy data
 		sprintf(m_OnError,"javascript:%s()",args[0].value.stringValue.UTF8Characters);
 		return true;
@@ -854,17 +869,21 @@ bool ScriptablePluginObject::GetRegInfo()
 {
 	// TODO: Add your dispatch handler code here
 	HKEY hKey;
-	BYTE szBuf[256];
+	BYTE *szBuf=(BYTE *)NPN_MemAlloc(256);
+	SecureZeroMemory(szBuf, 256);
+
 	DWORD lpType, lpDataSize;
 	
 	lpType = REG_SZ;
 	lpDataSize = 256;
-	char RegKeyNew[MAX_PATH]={0};
-	char RegGame[MAX_PATH]={0};
-	char RegGameExec[MAX_PATH]={0};
-	char RegGamePath[MAX_PATH]={0};
-	char ErrorMsg[MAX_PATH]={0};	
-	
+	char *RegKeyNew=(char *)NPN_MemAlloc(MAX_PATH);
+	SecureZeroMemory(RegKeyNew, MAX_PATH);
+	char *RegGame=(char *)NPN_MemAlloc(MAX_PATH);
+	SecureZeroMemory(RegGame, MAX_PATH);
+	char *RegGameExec=(char *)NPN_MemAlloc(MAX_PATH);
+	SecureZeroMemory(RegGameExec, MAX_PATH);
+	char *RegGamePath=(char *)NPN_MemAlloc(MAX_PATH);
+	SecureZeroMemory(RegGamePath, MAX_PATH);	
 
 	sprintf(RegGame,"%s\\",LAUNCHERREG);
 	sprintf(RegGameExec,"%s",LAUNCHERExec);
@@ -877,21 +896,28 @@ bool ScriptablePluginObject::GetRegInfo()
 	{
 		::RegCloseKey(hKey);
 		m_ErrorCode=506;
+		if (RegKeyNew) NPN_MemFree(RegKeyNew);
+		if (RegGame) NPN_MemFree(RegGame);
+		if (RegGameExec) NPN_MemFree(RegGameExec);
+		if (RegGamePath) NPN_MemFree(RegGamePath);
 		return false;
 	}
-	
-	memset(&szBuf,0,sizeof(szBuf));
+	SecureZeroMemory(szBuf, 256);		
 	lpDataSize = 256;	
 	retval=::RegQueryValueEx(hKey, RegGameExec, 0, &lpType, szBuf, &lpDataSize);
 	if (retval != ERROR_SUCCESS)	
 	{
 		::RegCloseKey(hKey);
 		m_ErrorCode=507;
+		if (RegKeyNew) NPN_MemFree(RegKeyNew);
+		if (RegGame) NPN_MemFree(RegGame);
+		if (RegGameExec) NPN_MemFree(RegGameExec);
+		if (RegGamePath) NPN_MemFree(RegGamePath);
 		return false;
 	}
 	sprintf(m_LauncherExec,"%s", szBuf);
 	
-	memset(&szBuf,0,sizeof(szBuf));
+	SecureZeroMemory(szBuf, 256);	
 	lpDataSize = 256;
 	
 	retval=::RegQueryValueEx(hKey, RegGamePath, 0, &lpType, szBuf, &lpDataSize);	
@@ -899,6 +925,10 @@ bool ScriptablePluginObject::GetRegInfo()
 	{
 		::RegCloseKey(hKey);
 		m_ErrorCode=507;
+		if (RegKeyNew) NPN_MemFree(RegKeyNew);
+		if (RegGame) NPN_MemFree(RegGame);
+		if (RegGameExec) NPN_MemFree(RegGameExec);
+		if (RegGamePath) NPN_MemFree(RegGamePath);
 		return false;
 	}
 	sprintf(m_LauncherPath,"%s", szBuf);
@@ -913,11 +943,19 @@ bool ScriptablePluginObject::GetRegInfo()
 	if((fd=fopen(m_LauncherExec,"rb"))==NULL)
 	{
 		m_ErrorCode=508;
+		if (RegKeyNew) NPN_MemFree(RegKeyNew);
+		if (RegGame) NPN_MemFree(RegGame);
+		if (RegGameExec) NPN_MemFree(RegGameExec);
+		if (RegGamePath) NPN_MemFree(RegGamePath);
 		return false;
 	}
 
 
 	fclose(fd);
+	if (RegKeyNew) NPN_MemFree(RegKeyNew);
+	if (RegGame) NPN_MemFree(RegGame);		
+	if (RegGameExec) NPN_MemFree(RegGameExec);
+	if (RegGamePath) NPN_MemFree(RegGamePath);
 	return true;
 }
 
@@ -932,7 +970,7 @@ CPlugin::CPlugin(NPP pNPInstance) :
 #ifdef XP_WIN
   m_hWnd = NULL;
 #endif
-
+  return;
   NPN_GetValue(m_pNPInstance, NPNVWindowNPObject, &sWindowObj);
 
   NPIdentifier n = NPN_GetStringIdentifier("foof");
@@ -996,7 +1034,7 @@ CPlugin::CPlugin(NPP pNPInstance) :
 
 		NPN_ReleaseObject(doc);
   }
-
+/*
   NPVariant barval;
   NPN_GetProperty(m_pNPInstance, sWindowObj, sBar_id, &barval);
 
@@ -1005,14 +1043,14 @@ CPlugin::CPlugin(NPP pNPInstance) :
 
   NPN_InvokeDefault(m_pNPInstance, NPVARIANT_TO_OBJECT(barval), &arg, 1,
                     &rval);
-
+*/
   if (NPVARIANT_IS_INT32(rval) && NPVARIANT_TO_INT32(rval) == 4) {
     printf ("Default function call SUCCEEDED!\n");
   } else {
     printf ("Default function call FAILED!\n");
   }
 
-  NPN_ReleaseVariantValue(&barval);
+//  NPN_ReleaseVariantValue(&barval);
   NPN_ReleaseVariantValue(&rval);
 
 

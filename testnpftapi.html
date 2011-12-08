@@ -4,8 +4,7 @@
 <TITLE>New Page</TITLE>
 </HEAD>
 <BODY>
-<embed type="application/npftapi" HEIGHT="0" WIDTH="0" id="plugin" pluginspage="https://addons.mozilla.org/firefox/downloads/file/125197/npftapi-1.0.0.1-fx-windows.xpi" autoplay="no" wmode="transparent" />
-
+<embed type="application/npftapi" id="plugin">
 <SCRIPT language="JavaScript" type="text/JavaScript">
 
 var PLUGIN = null;
@@ -33,7 +32,6 @@ function InitNPFTAPI()
  }
  catch(e)
  {
-  //alert(e.name + "\n" + e.message);
   if(e.name == "TypeError")
   {
    alert("Please Install AVA Firefox Plugin");
@@ -62,11 +60,11 @@ function CheckBrowser()
 	var c = s.indexOf("Chrome");
 	var ie = s.indexOf("MSIE");
 	
-	if( c > 0 )//is there chrome
-	{
-		alert( "Chrome dont like functions with parameters.");
-		return true;
-	}	
+//	if( c > 0 )//is there chrome
+//	{
+//		alert( "Chrome dont like functions with parameters.");
+//		return true;
+//	}	
 	
 	if( ie > 0 )//is there chrome
 	{
@@ -74,7 +72,7 @@ function CheckBrowser()
 		return true;
 	}
 	
-	if( a > 0 )//is there chrome
+	if( a > 0 && c < 0)//is there chrome
 	{
 		alert( "Apple Safari dont like NPAPI at all.");
 		return true;

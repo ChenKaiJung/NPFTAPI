@@ -1,0 +1,7 @@
+{
+  "name": "NPFTAPI",
+   "version": "1.0.0.2", 
+  "plugins": [
+    { "path": "npftapi.dll", "public": true }
+  ]
+}

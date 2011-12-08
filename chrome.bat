@@ -1,0 +1,1 @@
+"C:\Documents and Settings\tank\Local Settings\Application Data\Google\Chrome\Application\chrome.exe" --pack-extension=C:\MyProject\git\AVA\trunk\NPFTAPI\chrome

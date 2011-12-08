@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib Greta\Debug\Greta.lib wintrust.lib"
-				OutputFile="C:\Program Files\Mozilla Firefox\plugins\npftapi.dll"
+				OutputFile="debug\npftapi.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\nprt.def"

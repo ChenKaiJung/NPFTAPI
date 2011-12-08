@@ -9,11 +9,11 @@
 			Name="Debug|Win32"
 			>
 			<DebugSettings
-				Command="C:\Program Files\Mozilla Firefox\firefox.exe"
-				WorkingDirectory="C:\Program Files\Mozilla Firefox\"
-				CommandArguments=""
+				Command="C:\Documents and Settings\tank\Local Settings\Application Data\Google\Chrome\Application\chrome.exe --"
+				WorkingDirectory=""
+				CommandArguments="--single-proces --no-sandbox --wait-for-debugger-children --wait-for-debugger"
 				Attach="true"
-				DebuggerType="3"
+				DebuggerType="0"
 				Remote="1"
 				RemoteMachine="MINI_FELICIA"
 				RemoteCommand=""
