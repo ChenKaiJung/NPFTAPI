@@ -68,11 +68,11 @@ const char LAUNCHERREG[]="LAUNCHER";
 const char LAUNCHERExec[]="exec";
 const char LAUNCHERPath[]="path";
 #define ALLOW_EXEC "(\\FTLauncher\\.exe)"
-#define ALLOW_DOWNLOAD_URL "^(http://download.avaonline.com.tw|https:download.avaonline.com.tw)"
+//#define ALLOW_DOWNLOAD_URL "^(http://download.avaonline.com.tw|https:download.avaonline.com.tw)"
 #define ALLOW_INPUT "^[A-Za-z0-9_=]+$"
-#define DEFAULT_URL "http://download.avaonline.com.tw"
-#ifndef SERVICE_ACCOUNT_LENGTH
-	#define SERVICE_ACCOUNT_LENGTH 129
+//#define DEFAULT_URL "http://download.avaonline.com.tw"
+#ifndef OAUTH_PORVIDER_LENGTH
+	#define OAUTH_PORVIDER_LENGTH 129
 #endif
 #ifndef CIPHERTEXT_LENGTH
 	#define CIPHERTEXT_LENGTH 1025
@@ -607,6 +607,10 @@ ScriptablePluginObject::HasMethod(NPIdentifier name)
 	{
 		return true;
 	}
+	if(strcmp( "LaunchWithOAuth", pFunc ) == 0)
+	{
+		return true;
+	}
 	if(strcmp( "AddOkEvent", pFunc ) == 0)
 	{
 		return true;
@@ -778,7 +782,7 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			return false;
 		}
 		fromatch.clear();
-		char *tmp=(char*)NPN_MemAlloc(512);
+		char *tmp=(char*)NPN_MemAlloc(CIPHERTEXT_LENGTH);
 		strncpy(tmp,ServiceAccount,args[0].value.stringValue.UTF8Length);
 		fromatch += tmp; 
 		br = pat_i.match( fromatch, results );
@@ -806,6 +810,105 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 
 		SetCurrentDirectory((LPCTSTR)m_LauncherPath);
 		sprintf(path,"%s -ServiceAccount=%s -Cipher=%s",m_LauncherExec,ServiceAccount,Cipher);
+		WinExec( path, SW_SHOW);
+
+		if (path) NPN_MemFree(path);
+
+		m_ErrorCode = 100;
+		INT32_TO_NPVARIANT( m_ErrorCode,*result);
+		
+		if(m_OnOk!=NULL) NPN_GetURL(mNpp, m_OnOk, NULL);
+		return true;
+	}
+
+	if( strcmp( "LaunchWithOAuth", pFunc ) == 0)
+	{
+		char *ServiceProvider=NULL;
+		char *Code=NULL;
+		m_ErrorCode = 115;
+		INT32_TO_NPVARIANT( m_ErrorCode,*result);
+
+		if( args[0].type != NPVariantType_String )
+		{
+			m_ErrorCode = 114;
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+		Code = (char *)args[0].value.stringValue.UTF8Characters;
+
+		if( args[1].type != NPVariantType_String )
+		{
+			m_ErrorCode = 114;
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+
+		ServiceProvider = (char *)args[1].value.stringValue.UTF8Characters;
+
+		bool retval= GetRegInfo();
+		if(retval==false) 
+		{
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+
+		retval=VerifyEmbeddedSignature((char *)(LPCTSTR)m_LauncherExec);
+		if(retval==false)  
+		{
+			m_ErrorCode=510;
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+
+		match_results results;
+		rpattern pat(ALLOW_EXEC);  
+		rpattern pat_i(ALLOW_INPUT);
+		// Match a dollar sign followed by one or more digits,
+		// optionally followed by a period and two more digits.
+		// The double-escapes are necessary to satisfy the compiler.
+		string fromatch = (char *)(LPCTSTR)m_LauncherExec;
+		match_results::backref_type br = pat.match( fromatch, results );
+		if( ! br.matched ) 
+		{
+			m_ErrorCode=511;
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+		fromatch.clear();
+		char *tmp=(char*)NPN_MemAlloc(CIPHERTEXT_LENGTH);
+		strncpy(tmp,Code,args[0].value.stringValue.UTF8Length);
+		fromatch += tmp; 
+		br = pat_i.match( fromatch, results );
+		if( ! br.matched ) 
+		{
+			m_ErrorCode=114;
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			if (tmp) NPN_MemFree(tmp);
+			return false;
+		}
+		fromatch.clear();
+		strncpy(tmp,ServiceProvider,args[1].value.stringValue.UTF8Length);	
+		fromatch += tmp;		
+		br = pat_i.match( fromatch, results );
+		if( ! br.matched ) 
+		{
+			m_ErrorCode=114;
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			if (tmp) NPN_MemFree(tmp);
+			return false;
+		}
+		if (tmp) NPN_MemFree(tmp);
+
+		char *path=(char*)NPN_MemAlloc(MAX_PATH);
+
+		SetCurrentDirectory((LPCTSTR)m_LauncherPath);
+		sprintf(path,"%s -Code=%s -OAuthProvider=%s",m_LauncherExec,Code,ServiceProvider);
 		WinExec( path, SW_SHOW);
 
 		if (path) NPN_MemFree(path);
