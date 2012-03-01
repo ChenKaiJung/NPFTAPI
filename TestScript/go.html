@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/tr/html4/strict.dtd'>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<HTML>
+<HEAD>
+<TITLE>啟動遊戲</TITLE>
+</HEAD>
+<BODY>
+
+<SCRIPT language="JavaScript" type="text/JavaScript">
+var PLUGIN = null;
+function OnFTAtxCtrlOk()
+{
+	top.location.href="http://apps.facebook.com/avaonline/";
+}
+
+function OnFTAtxCtrlError()
+{
+	switch (document.FTAtxCtrl.ErrorCode)
+	{
+		case 500:
+			alert('無法連接更新伺服器，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 501:
+			alert('遊戲更新初始化失敗，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 502:
+			alert('無法連接遊戲更新伺服器，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 503:
+			alert('遊戲版本太老舊，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 504:
+			alert('無法連接認證伺服器，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 506:
+			if(confirm("無法開啟登錄檔，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+		case 507:
+			if(confirm("無法查詢登錄檔，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+
+			case 508:
+			if(confirm("無法查詢登錄檔，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+		case 510:
+			if(confirm("登錄內容有錯誤，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+		case 511:
+			if(confirm("目標無法被執行，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;	
+		default	:
+			alert('啟動錯誤，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;	
+
+	}
+	top.location.href="http://apps.facebook.com/avaonline/";
+}
+
+
+function InitFTAtxCtrl()
+{
+	document.write("<OBJECT ID=\"FTAtxCtrl\" WIDTH=0 HEIGHT=0 CLASSID=\"CLSID:643D82AD-AE93-40DA-AD4A-A306E6B5A4F6\" CODEBASE=\"FTAtxCtrl.cab\" >");
+	document.write("<\/OBJECT>");
+	try
+	{
+		document.FTAtxCtrl.attachEvent("OnOk",OnFTAtxCtrlOk);
+		document.FTAtxCtrl.attachEvent("OnError",OnFTAtxCtrlError);
+		document.FTAtxCtrl.LaunchWithOAuth("y6efrwc6wocq5shgs5x3lkbgu2oftsiwbxf2hcjxmaydgjcgdtwjtg5n4izs7bw3td4meyd7gtjf52oo5eacmitcytlkpary5gmtzmv3ozvm6dfazsueuk75ykc7nsshzww7m5xkbcgqrtxmnpfj3vqcyq======","Facebook","LauncherBlueTears");
+	}
+	catch(e)
+	{
+			alert('第一次啟動請安裝ActiveX元件,再重新點選開始遊戲!');
+			top.location.href="http://localhost/go.html";
+	}
+}
+
+function OnNPFTAPIOk(){
+	top.location.href="http://localhost/ok.html";
+}
+
+function OnNPFTAPIError(){
+	if(PLUGIN == null) PLUGIN = document.getElementById("plugin");
+  
+	switch (PLUGIN.ErrorCode)
+	{
+		case 500:
+			alert('無法連接更新伺服器，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 501:
+			alert('遊戲更新初始化失敗，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 502:
+			alert('無法連接遊戲更新伺服器，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 503:
+			alert('遊戲版本太老舊，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 504:
+			alert('無法連接認證伺服器，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;
+		case 506:
+			if(confirm("無法開啟登錄檔，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+		case 507:
+			if(confirm("無法查詢登錄檔，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+
+			case 508:
+			if(confirm("無法查詢登錄檔，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+		case 510:
+			if(confirm("登錄內容有錯誤，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;
+		case 511:
+			if(confirm("目標無法被執行，錯誤代碼:"+document.FTAtxCtrl.ErrorCode+"，請重新安裝遊戲，連至下載頁面?"))
+			{
+				top.location.href = "http://localhost/err.html";
+			}
+		break;	
+		default	:
+			alert('啟動錯誤，錯誤代碼:'+document.FTAtxCtrl.ErrorCode);
+		break;	
+
+	}
+	top.location.href="http://apps.facebook.com/avaonline/";
+}
+
+
+
+function InitNPFTAPI()
+{
+	document.write("<embed type=\"application/npftapi\" HEIGHT=\"0\" WIDTH=\"0\" id=\"plugin\" pluginspage=\"https://addons.mozilla.org/firefox/downloads/file/138488/npftapi-1.0.0.2-fx-windows.xpi\" autoplay=\"no\" wmode=\"transparent\" />");
+	try
+	{
+		if(PLUGIN == null)  PLUGIN = document.getElementById("plugin");
+		PLUGIN.AddOkEvent("OnNPFTAPIOk");
+		PLUGIN.AddErrorEvent("OnNPFTAPIError");  
+		PLUGIN.LaunchWithOAuth("y6efrwc6wocq5shgs5x3lkbgu2oftsiwbxf2hcjxmaydgjcgdtwjtg5n4izs7bw3td4meyd7gtjf52oo5eacmitcytlkpary5gmtzmv3ozvm6dfazsueuk75ykc7nsshzww7m5xkbcgqrtxmnpfj3vqcyq======","Facebook","Launcher");
+	}
+	 catch(e)
+	{
+		if(e.name == "TypeError")
+  		{
+			alert('第一次啟動請安裝NTFPAPI元件,再重新點選開始遊戲!');
+			top.location.href="https://addons.mozilla.org/zh_TW/firefox/addon/npftapi/";
+			return;
+ 	 	}
+		top.location.href="http://localhost/go.html";
+	}
+}
+
+function Init()
+{
+	var s = navigator.userAgent;//alert(s);
+	var a = s.indexOf("Apple");
+	var c = s.indexOf("Chrome");
+	var ie = s.indexOf("MSIE");
+	
+//	if( c > 0 )
+//	{
+//		alert( "不支援Chrome瀏覽器!!");
+//		top.location.href="http://apps.facebook.com/avaonline/";		
+//		return;
+//	}	
+
+	if( a > 0 && c <0 )
+	{
+		alert( "不支援Apple Safari瀏覽器!!");
+		top.location.href="http://apps.facebook.com/avaonline/";		
+		return;
+	}
+
+	
+	if( ie > 0 )
+	{
+		InitFTAtxCtrl();
+		return;
+	}
+	
+	InitNPFTAPI();
+	return;
+}
+
+
+Init();                                    									
+
+
+</SCRIPT>
+</BODY>
+</HTML>
