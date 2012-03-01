@@ -69,7 +69,7 @@ const char LAUNCHERExec[]="exec";
 const char LAUNCHERPath[]="path";
 #define ALLOW_EXEC "(\\FTLauncher\\.exe)"
 //#define ALLOW_DOWNLOAD_URL "^(http://download.avaonline.com.tw|https:download.avaonline.com.tw)"
-#define ALLOW_INPUT "^[A-Za-z0-9_=]+$"
+#define ALLOW_INPUT "^[A-Za-z0-9_=\\-\\|\\.]+$"
 //#define DEFAULT_URL "http://download.avaonline.com.tw"
 #ifndef OAUTH_PORVIDER_LENGTH
 	#define OAUTH_PORVIDER_LENGTH 129
@@ -563,7 +563,7 @@ public:
 //	char m_szTextGui[200];
 	HWND m_hWnd;
 private:
-	bool GetRegInfo();
+	bool GetRegInfo(char *kay);
 	//kk some implementation
 //	char *m_pszName;
 	char *m_OnOk;
@@ -748,7 +748,7 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 		}
 		Cipher = (char *)args[1].value.stringValue.UTF8Characters;
 
-		bool retval= GetRegInfo();
+		bool retval= GetRegInfo(NULL);
 		if(retval==false) 
 		{
 			INT32_TO_NPVARIANT( m_ErrorCode,*result);
@@ -823,8 +823,9 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 
 	if( strcmp( "LaunchWithOAuth", pFunc ) == 0)
 	{
-		char *ServiceProvider=NULL;
+		char *OAuthProvider=NULL;
 		char *Code=NULL;
+		char *RegKey=NULL;
 		m_ErrorCode = 115;
 		INT32_TO_NPVARIANT( m_ErrorCode,*result);
 
@@ -845,9 +846,39 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			return false;
 		}
 
-		ServiceProvider = (char *)args[1].value.stringValue.UTF8Characters;
+		OAuthProvider = (char *)args[1].value.stringValue.UTF8Characters;
 
-		bool retval= GetRegInfo();
+		if( args[2].type != NPVariantType_String )
+		{
+			m_ErrorCode = 114;
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+
+		RegKey = (char *)args[2].value.stringValue.UTF8Characters;
+		match_results results;
+		rpattern pat(ALLOW_EXEC);  
+		rpattern pat_i(ALLOW_INPUT);
+		// Match a dollar sign followed by one or more digits,
+		// optionally followed by a period and two more digits.
+		// The double-escapes are necessary to satisfy the compiler.
+
+		char *tmp=(char*)NPN_MemAlloc(CIPHERTEXT_LENGTH);
+		strncpy(tmp,Code,args[2].value.stringValue.UTF8Length);
+		string fromatch;
+		fromatch += tmp;
+		match_results::backref_type br  = pat_i.match( fromatch, results );
+		if( ! br.matched ) 
+		{
+			m_ErrorCode = 506;
+			INT32_TO_NPVARIANT( m_ErrorCode,*result);
+			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
+			return false;
+		}
+		fromatch.clear();
+		bool retval= GetRegInfo(RegKey);
+
 		if(retval==false) 
 		{
 			INT32_TO_NPVARIANT( m_ErrorCode,*result);
@@ -865,23 +896,6 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			return false;
 		}
 
-		match_results results;
-		rpattern pat(ALLOW_EXEC);  
-		rpattern pat_i(ALLOW_INPUT);
-		// Match a dollar sign followed by one or more digits,
-		// optionally followed by a period and two more digits.
-		// The double-escapes are necessary to satisfy the compiler.
-		string fromatch = (char *)(LPCTSTR)m_LauncherExec;
-		match_results::backref_type br = pat.match( fromatch, results );
-		if( ! br.matched ) 
-		{
-			m_ErrorCode=511;
-			INT32_TO_NPVARIANT( m_ErrorCode,*result);
-			if(m_OnError!=NULL) NPN_GetURL(mNpp, m_OnError, NULL);
-			return false;
-		}
-		fromatch.clear();
-		char *tmp=(char*)NPN_MemAlloc(CIPHERTEXT_LENGTH);
 		strncpy(tmp,Code,args[0].value.stringValue.UTF8Length);
 		fromatch += tmp; 
 		br = pat_i.match( fromatch, results );
@@ -893,7 +907,8 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			return false;
 		}
 		fromatch.clear();
-		strncpy(tmp,ServiceProvider,args[1].value.stringValue.UTF8Length);	
+
+		strncpy(tmp,OAuthProvider,args[1].value.stringValue.UTF8Length);	
 		fromatch += tmp;		
 		br = pat_i.match( fromatch, results );
 		if( ! br.matched ) 
@@ -903,12 +918,14 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 			if (tmp) NPN_MemFree(tmp);
 			return false;
 		}
+		fromatch.clear();
+
 		if (tmp) NPN_MemFree(tmp);
 
 		char *path=(char*)NPN_MemAlloc(MAX_PATH);
 
 		SetCurrentDirectory((LPCTSTR)m_LauncherPath);
-		sprintf(path,"%s -Code=%s -OAuthProvider=%s",m_LauncherExec,Code,ServiceProvider);
+		sprintf(path,"%s -Code=%s -OAuthProvider=%s",m_LauncherExec,Code,OAuthProvider);
 		WinExec( path, SW_SHOW);
 
 		if (path) NPN_MemFree(path);
@@ -968,7 +985,7 @@ ScriptablePluginObject::InvokeDefault(const NPVariant *args, uint32_t argCount,
   return true;
 }
 
-bool ScriptablePluginObject::GetRegInfo()
+bool ScriptablePluginObject::GetRegInfo(char *key)
 {
 	// TODO: Add your dispatch handler code here
 	HKEY hKey;
@@ -987,8 +1004,15 @@ bool ScriptablePluginObject::GetRegInfo()
 	SecureZeroMemory(RegGameExec, MAX_PATH);
 	char *RegGamePath=(char *)NPN_MemAlloc(MAX_PATH);
 	SecureZeroMemory(RegGamePath, MAX_PATH);	
-
-	sprintf(RegGame,"%s\\",LAUNCHERREG);
+	
+	if(key==NULL) 
+	{
+		sprintf(RegGame,"%s\\",LAUNCHERREG);
+	}
+	else
+	{
+		sprintf(RegGame,"%s\\",key);
+	}
 	sprintf(RegGameExec,"%s",LAUNCHERExec);
 	sprintf(RegGamePath,"%s",LAUNCHERPath);	
 	sprintf(RegKeyNew,"%s%s","SOFTWARE\\Funtown\\",RegGame);
