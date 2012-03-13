@@ -865,7 +865,7 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 		// The double-escapes are necessary to satisfy the compiler.
 
 		char *tmp=(char*)NPN_MemAlloc(CIPHERTEXT_LENGTH);
-		strncpy(tmp,Code,args[2].value.stringValue.UTF8Length);
+		strncpy(tmp,RegKey,args[2].value.stringValue.UTF8Length);
 		string fromatch;
 		fromatch += tmp;
 		match_results::backref_type br  = pat_i.match( fromatch, results );
