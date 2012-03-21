@@ -925,7 +925,7 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_
 		char *path=(char*)NPN_MemAlloc(MAX_PATH);
 
 		SetCurrentDirectory((LPCTSTR)m_LauncherPath);
-		sprintf(path,"%s -Code=%s -OAuthProvider=%s",m_LauncherExec,Code,OAuthProvider);
+		sprintf(path,"%s -Code %s -OAuthProvider %s",m_LauncherExec,Code,OAuthProvider);
 		WinExec( path, SW_SHOW);
 
 		if (path) NPN_MemFree(path);
