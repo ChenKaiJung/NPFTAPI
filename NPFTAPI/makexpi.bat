@@ -1,1 +1,1 @@
-jar cvfM NPFTAPI.xpi  -C ./ *.*
+jar cvfM NPFTAPI.xpi  -C ./ plugins install.rdf
